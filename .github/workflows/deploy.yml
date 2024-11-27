@@ -1,0 +1,85 @@
+name: VSIX
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  create_release:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Step 2: Install dependencies
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip npm jq
+          npm install -g vsce
+
+      # Step 3: Install GitHub CLI
+      - name: Install GitHub CLI
+        run: |
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /usr/share/keyrings/githubcli-archive-keyring.gpg > /dev/null
+          sudo apt-get update
+          sudo apt-get install -y gh
+
+      # Step 4: Authenticate GitHub CLI
+      - name: Authenticate GitHub CLI
+        run: |
+          echo "${{ secrets.GH_TOKEN }}" | gh auth login --with-token
+          gh auth status
+
+      # Step 5: Extract Version from package.json
+      - name: Extract Version
+        id: extract_version
+        run: |
+          VERSION=$(jq -r '.version' package.json)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      # Step 6: Create a new draft release
+      - name: Create Draft Release
+        id: create_release
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          RELEASE_TITLE="Release $VERSION"
+          RELEASE_TAG="v$VERSION"
+          echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
+          gh release create "$RELEASE_TAG" --draft --title "$RELEASE_TITLE"
+
+      # Step 7: Generate the .vsix file
+      - name: Generate .vsix File
+        run: |
+          vsce package
+
+      # Step 8: Publish the extension
+      - name: Publish Extension
+        env:
+          AZURE_DEVOPS_TOKEN: ${{ secrets.AZURE_DEVOPS_TOKEN }}
+        run: |
+          vsce publish -p $AZURE_DEVOPS_TOKEN
+
+      # Step 9: Upload .vsix file to the release
+      - name: Upload .vsix File to Release
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          if [ -f ./*.vsix ]; then
+            gh release upload "$RELEASE_TAG" ./*.vsix
+          else
+            echo "No .vsix file found. Skipping upload."
+            exit 1
+          fi
+
+      # Step 10: Publish the release
+      - name: Publish Release
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          gh release edit "$RELEASE_TAG" --draft=false

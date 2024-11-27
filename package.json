@@ -1,0 +1,32 @@
+{
+  "name": "jg2401-markdown",
+  "displayName": "JG2401 - Custom Markdown Snippets",
+  "description": "Custom Snippets for Markdown",
+  "version": "1.0.0",
+  "publisher": "jg2401",
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "categories": [
+    "Snippets"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "markdown",
+        "aliases": ["Markdown", "markdown"],
+        "extensions": [".md"],
+        "icon": {
+          "dark": "./images/Integris.jpg",
+          "light": "./images/Integris.jpg"
+        }
+      }
+    ],
+    "snippets": [
+      {
+        "language": "markdown",
+        "path": "./snippets/alert.code-snippets"
+      }
+    ]
+  }
+}

@@ -1,0 +1,42 @@
+{
+    "Note": {
+        "prefix": "note",
+        "body": [
+            "> [!NOTE]",
+            "> ${1}"
+        ],
+        "description": "Highlights information that users should take into account, even when skimming"
+    },
+    "Tip": {
+        "prefix": "tip",
+        "body": [
+            "> [!TIP]",
+            "> ${1}"
+        ],
+        "description": "Optional information to help a user be more successful"
+    },
+    "Important": {
+        "prefix": "important",
+        "body": [
+            "> [!IMPORTANT]",
+            "> ${1}"
+        ],
+        "description": "Crucial information necessary for users to succeed"
+    },
+    "Warning": {
+        "prefix": "warning",
+        "body": [
+            "> [!WARNING]",
+            "> ${1}"
+        ],
+        "description": "Critical content demanding immediate user attention due to potential risks"
+    },
+    "Caution": {
+        "prefix": "caution",
+        "body": [
+            "> [!CAUTION]",
+            "> ${1}"
+        ],
+        "description": "Negative potential consequences of an action"
+    }
+}
